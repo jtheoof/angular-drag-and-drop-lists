@@ -250,6 +250,7 @@ angular.module('dndLists', [])
 
       var horizontal = attr.dndHorizontalList && scope.$eval(attr.dndHorizontalList);
       var externalSources = attr.dndExternalSources && scope.$eval(attr.dndExternalSources);
+      var autoScroll = attr.dndAutoScroll && scope.$eval(attr.dndAutoScroll);
 
       /**
        * The dragenter event is fired when a dragged element or text selection enters a valid drop
@@ -276,6 +277,10 @@ angular.module('dndLists', [])
         // This is especially important if the list is empty
         if (placeholderNode.parentNode != listNode) {
           element.append(placeholder);
+        }
+
+        if (autoScroll) {
+          handleAutoScroll(event);
         }
 
         if (event.target !== listNode) {
@@ -424,6 +429,44 @@ angular.module('dndLists', [])
         var targetPosition = horizontal ? targetNode.offsetLeft : targetNode.offsetTop;
         targetPosition = relativeToParent ? targetPosition : 0;
         return mousePointer < targetPosition + targetSize / 2;
+      }
+
+      /**
+       * Automatically scroll up and down (or left and right) when an item is being dragged over.
+       *
+       * When an item enters the dragging zone check whether the mouse pointer is within the
+       * boundaries of the listNode element. If it is, then auto scroll the listNode. This is useful
+       * if the list node has predefined height or maxHeight.
+       *
+       * Do the same thing if the mouse pointer is within the boundaries of the window. In that case
+       * auto scroll the window using `window.scrollBy`.
+       */
+      function handleAutoScroll(event) {
+        var listClientRect = listNode.getBoundingClientRect();
+        var minBoundary = 1 / 10; /* boundary top or left */
+        var maxBoundary = 9 / 10; /* boundary bottom or right */
+        var windowMinEdge = horizontal ? window.innerWidth * minBoundary
+                                             : window.innerHeight * minBoundary;
+        var windowMaxEdge = horizontal ? window.innerWidth * maxBoundary
+                                                : window.innerHeight * maxBoundary;
+        var nodeMaxEdge = horizontal ? listClientRect.left + listClientRect.width * maxBoundary
+                                     : listClientRect.top + listClientRect.height * maxBoundary;
+        var nodeMinEdge = horizontal ? listClientRect.left + listClientRect.width * minBoundary
+                                     : listClientRect.top + listClientRect.height * minBoundary;
+        var scrollSpeed = 15;
+        var mousePointer = horizontal ? event.clientX : event.clientY;
+
+        if (mousePointer < windowMinEdge) {
+          window.scrollBy(0, -scrollSpeed);
+        } else if (mousePointer > windowMaxEdge) {
+          window.scrollBy(0, scrollSpeed);
+        }
+
+        if (mousePointer > nodeMaxEdge) {
+          listNode.scrollTop += scrollSpeed;
+        } else if (mousePointer < nodeMinEdge) {
+          listNode.scrollTop -= scrollSpeed;
+        }
       }
 
       /**
