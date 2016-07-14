@@ -153,6 +153,10 @@ angular.module('dndLists', [])
         event.stopPropagation();
       });
 
+      setInterval(function() {
+        console.log(dndDragTypeWorkaround.isDragging);
+      }, 300);
+
       /**
        * When the element is clicked we invoke the callback function
        * specified with the dnd-selected attribute.
@@ -251,6 +255,10 @@ angular.module('dndLists', [])
       var horizontal = attr.dndHorizontalList && scope.$eval(attr.dndHorizontalList);
       var externalSources = attr.dndExternalSources && scope.$eval(attr.dndExternalSources);
       var autoScroll = attr.dndAutoScroll && scope.$eval(attr.dndAutoScroll);
+
+      if (autoScroll) {
+        element.on('mousemove', handleAutoScroll);
+      }
 
       /**
        * The dragenter event is fired when a dragged element or text selection enters a valid drop
@@ -432,19 +440,24 @@ angular.module('dndLists', [])
       }
 
       /**
-       * Automatically scroll up and down when an item is being dragged over the list.
+       * Automatically scroll up and down (or left and right) when an item is being dragged over.
        *
-       * When an item is dragged over check whether the mouse pointer is within the boundaries
-       * of the listNode element. If it is, then auto scroll the listNode. This is useful if the
-       * list node has predefined height or maxHeight.
+       * When an item enters the dragging zone check whether the mouse pointer is within the
+       * boundaries of the listNode element. If it is, then auto scroll the listNode. This is useful
+       * if the list node has predefined height or maxHeight.
        *
        * Do the same thing if the mouse pointer is within the boundaries of the window. In that case
        * auto scroll the window using `window.scrollBy`.
        */
       function handleAutoScroll(event) {
+        console.log(event);
+        if (!dndDragTypeWorkaround.isDragging) {
+          return;
+        }
+
         var listClientRect = listNode.getBoundingClientRect();
-        var minBoundary = 1 / 4; /* boundary top or left */
-        var maxBoundary = 3 / 4; /* boundary bottom or right */
+        var minBoundary = 1 / 10; /* boundary top or left */
+        var maxBoundary = 9 / 10; /* boundary bottom or right */
         var windowMinEdge = horizontal ? window.innerWidth * minBoundary
                                              : window.innerHeight * minBoundary;
         var windowMaxEdge = horizontal ? window.innerWidth * maxBoundary
@@ -455,6 +468,9 @@ angular.module('dndLists', [])
                                      : listClientRect.top + listClientRect.height * minBoundary;
         var scrollSpeed = 15;
         var mousePointer = horizontal ? event.clientX : event.clientY;
+
+        console.log('mousePointer: ' + mousePointer);
+        console.log('nodeMaxEdge: ' + nodeMaxEdge);
 
         if (mousePointer < windowMinEdge) {
           window.scrollBy(0, -scrollSpeed);
