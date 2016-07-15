@@ -252,6 +252,10 @@ angular.module('dndLists', [])
       var externalSources = attr.dndExternalSources && scope.$eval(attr.dndExternalSources);
       var autoScroll = attr.dndAutoScroll && scope.$eval(attr.dndAutoScroll);
 
+      if (autoScroll) {
+        element.on('mousemove', handleAutoScroll);
+      }
+
       /**
        * The dragenter event is fired when a dragged element or text selection enters a valid drop
        * target. According to the spec, we either need to have a dropzone attribute or listen on
@@ -277,10 +281,6 @@ angular.module('dndLists', [])
         // This is especially important if the list is empty
         if (placeholderNode.parentNode != listNode) {
           element.append(placeholder);
-        }
-
-        if (autoScroll) {
-          handleAutoScroll(event);
         }
 
         if (event.target !== listNode) {
@@ -442,6 +442,10 @@ angular.module('dndLists', [])
        * auto scroll the window using `window.scrollBy`.
        */
       function handleAutoScroll(event) {
+        if (!dndDragTypeWorkaround.isDragging) {
+          return;
+        }
+
         var listClientRect = listNode.getBoundingClientRect();
         var minBoundary = 1 / 10; /* boundary top or left */
         var maxBoundary = 9 / 10; /* boundary bottom or right */
