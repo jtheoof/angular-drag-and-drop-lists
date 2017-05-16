@@ -634,8 +634,8 @@ angular.module('dndAutoScroll', [])
 
     function updateMousePosition(event) {
       mousePosition = {
-        x: event.clientX,
-        y: event.clientY
+        x: event.originalEvent.clientX,
+        y: event.originalEvent.clientY
       };
     }
 
