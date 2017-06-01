@@ -19,7 +19,7 @@ Internet Explorer 8 or lower is *not supported*, but all modern browsers are (se
 
 ## Download & Installation
 * Download `angular-drag-and-drop-lists.js` (or the minified version) and include it in your application. If you use bower or npm, just include the `angular-drag-and-drop-lists` package.
-* Add the `dndLists` module as a dependency to your angular app. Optionally, add the `dndAutoScroll` module as a dependency as well to benefit from automatic scrolling within the document. See below for more details.
+* Add the `dndLists` module as a dependency to your angular app.
 
 ## dnd-draggable directive
 Use the dnd-draggable directive to make your element draggable
@@ -38,12 +38,15 @@ Use the dnd-draggable directive to make your element draggable
 * `dnd-disable-if` You can use this attribute to dynamically disable the draggability of the element. This is useful if you have certain list items that you don't want to be draggable, or if you want to disable drag & drop completely without having two different code branches (e.g. only allow for admins). *Note*: If your element is not draggable, the user is probably able to select text or images inside of it. Since a selection is always draggable, this breaks your UI. You most likely want to disable user selection via CSS (see [user-select](http://stackoverflow.com/a/4407335)). [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/types)
 
 **Callbacks**
+* `dnd-dragstart` Callback that is invoked when the element was dragged. The original dragstart event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-moved` Callback that is invoked when the element was moved. Usually you will remove your element from the original list in this callback, since the directive is not doing that for you automatically. The original dragend event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-copied` Same as dnd-moved, just that it is called when the element was copied instead of moved. The original dragend event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
+* `dnd-linked` Same as dnd-moved, just that it is called when the element was linked instead of moved. The original dragend event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-canceled` Callback that is invoked if the element was dragged, but the operation was canceled and the element was not dropped. The original dragend event will be provided in the local event variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-dragstart` Callback that is invoked when the element was dragged. The original dragstart event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-dragend` Callback that is invoked when the drag operation ended. Available local variables are `event` and `dropEffect`. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/advanced)
 * `dnd-selected` Callback that is invoked when the element was clicked but not dragged. The original click event will be provided in the local `event` variable. [Demo](http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo/#/nested)
+* `dnd-callback` Custom callback that is passed to dropzone callbacks and can be used to communicate between source and target scopes. The dropzone can pass user defined variables to this callback. This can be used to transfer objects without serialization, see [Demo](https://jsfiddle.net/Ldxffyod/1/).
 
 **CSS classes**
 * `dndDragging` This class will be added to the element while the element is being dragged. It will affect both the element you see while dragging and the source element that stays at it's position. Do not try to hide the source element with this class, because that will abort the drag operation.
@@ -110,12 +113,12 @@ By default, the scrolling speed is 30px every 50ms.
 
 ## Required CSS styles
 Both the dnd-list and it's children require relative positioning, so that the directive can determine the mouse position relative to the list and thus calculate the correct drop position.
+## Recommended CSS styles
+It is recommended that you apply the following CSS styles:
 
-<pre>
-ul[dnd-list], ul[dnd-list] > li {
-    position: relative;
-}
-</pre>
+* If your application is about moving elements by drag and drop, it is recommended that you hide the source element while dragging, i.e. setting `display: none` on the `.dndDraggingSource` class.
+* If your application allows to drop elements into empty lists, you need to ensure that empty lists never have a height or width of zero, e.g. by setting a `min-width`.
+* You should style the `.dndPlaceholder` class accordingly.
 
 
 
